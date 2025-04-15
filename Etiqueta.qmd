@@ -1,7 +1,13 @@
 ---
 title: "Germinación_seed"
 author: "Lili"
-format: html
+format:
+  html:
+   toc: true
+   toc-location: left
+   embed-resources: true
+   number-sections: true
+   output-file: index
 ---
 
 ```{r}
@@ -15,13 +21,20 @@ source("https://inkaverse.com/setup.r")
 
 ```{r}
 
+# Cargar librerías necesarias
+library(googlesheets4)
+library(dplyr)
+library(huito)
+
+# Autenticarse en Google Sheets
+gs4_auth()
+
 Datos <- "https://docs.google.com/spreadsheets/d/1ZFFtP51ZXbwkpgFVieDL6hSvFZQJJQyGkw-6yHuuqE0/edit?gid=1565780259#gid=1565780259"
 
-lb <- Datos %>% 
-  as_sheets_id()
 
-fb <- lb %>% 
-  range_read(ss = .,sheet = "fb")
+
+gs <- as_sheets_id(Datos)
+fb <- range_read(gs, sheet = "fb")
 
 
 
@@ -30,8 +43,7 @@ fb <- lb %>%
 
 
 ```{r}
-library(dplyr)
-library(huito)
+
 
 
 font <- c("Courgette", "Tillana")
@@ -39,11 +51,11 @@ font <- c("Courgette", "Tillana")
 huito_fonts(font)
 
 label <- fb %>%
-  rename(scientific.name = FACTOR, name = plots) %>%
+  rename(scientific.name = factor1, name = plots) %>%
   mutate(
     tratamiento = case_when(
-      name %in% con_luz ~ "CON LUZ",
-      name %in% sin_luz ~ "SIN LUZ",
+      name %in% "con_luz" ~ "CON LUZ",
+      name %in% "sin_luz" ~ "SIN LUZ",
       TRUE ~ ""
     ),
     color_tratamiento = case_when(
@@ -72,12 +84,10 @@ label <- fb %>%
     position = c(2.55, 0.55)
   ) %>%
   
-  # Logo QR tipo lupa
-  include_image(
-    value = "https://drive.google.com/uc?export=view&id=16wJZmm-OVG3Cj512WUAfvgk-KZuiZkKN",
-    size = c(2, 2),
-    position = c(7.6, 4.9)
-  ) %>%
+  # Grupo 2
+  include_text(value = "GRUPO 2", position = c(6.5, 5), size = 12, color = "black", opts = list(hjust = 0)) %>%
+  
+  
   
   # Código QR
   include_barcode(
@@ -87,10 +97,10 @@ label <- fb %>%
   ) %>%
   
   # Textos informativos reacomodados
-  include_text(value = "Orden: Centrospermal", position = c(1.8, 3.9), size = 12, color = "black", opts = list(hjust = 0)) %>%
-  include_text(value = "Familia: Amarantaceae", position = c(1.8, 3.2), size = 12, color = "black", opts = list(hjust = 0)) %>%
-  include_text(value = "Chenopodiun quinoa", position = c(4.2, 5.4), size = 15, color = "black", font = font[1]) %>%
-  include_text(value = "Quinua", position = c(4.2, 4.6), size = 16, color = "black", font = font[2]) %>%
+  include_text(value = "Orden: Fabales", position = c(1.8, 3.9), size = 12, color = "black", opts = list(hjust = 0)) %>%
+  include_text(value = "Familia: Leguminosae", position = c(1.8, 3.2), size = 12, color = "black", opts = list(hjust = 0)) %>%
+  include_text(value = "Phaseolus vulgarisa", position = c(4.2, 5.4), size = 15, color = "black", font = font[1]) %>%
+  include_text(value = "Frijol", position = c(4.2, 4.6), size = 16, color = "black", font = font[2]) %>%
   
   # Texto del tratamiento junto al QR
   include_text(
@@ -102,7 +112,7 @@ label <- fb %>%
     opts = list(hjust = 0)
   ) %>%
   
-  # Número de parcela rotado (en el borde derecho)
+  # Número de codigo (de las etiquetas)
   include_text(
     value = "name",
     position = c(7.5, 3.5),
