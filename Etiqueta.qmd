@@ -1,0 +1,136 @@
+---
+title: "Germinación_seed"
+author: "Lili"
+format: html
+---
+
+```{r}
+
+source("https://inkaverse.com/setup.r")
+
+```
+
+
+#subir datos
+
+```{r}
+
+Datos <- "https://docs.google.com/spreadsheets/d/1ZFFtP51ZXbwkpgFVieDL6hSvFZQJJQyGkw-6yHuuqE0/edit?gid=1565780259#gid=1565780259"
+
+lb <- Datos %>% 
+  as_sheets_id()
+
+fb <- lb %>% 
+  range_read(ss = .,sheet = "fb")
+
+
+
+
+```
+
+
+```{r}
+library(dplyr)
+library(huito)
+
+
+font <- c("Courgette", "Tillana")
+
+huito_fonts(font)
+
+label <- fb %>%
+  rename(scientific.name = FACTOR, name = plots) %>%
+  mutate(
+    tratamiento = case_when(
+      name %in% con_luz ~ "CON LUZ",
+      name %in% sin_luz ~ "SIN LUZ",
+      TRUE ~ ""
+    ),
+    color_tratamiento = case_when(
+      tratamiento == "CON LUZ" ~ "darkblue",
+      tratamiento == "SIN LUZ" ~ "red",
+      TRUE ~ "black"
+    ),
+    color_numero = color_tratamiento,
+    number = row_number(),
+    barcode = paste(name, gsub("(\\w+\\s+\\w+).*", "\\1", scientific.name), sep = "_"),
+    barcode = gsub(" ", "-", barcode)
+  ) %>%
+  label_layout(size = c(9, 6), border_color = "darkgreen") %>%
+  
+  # Logo de UNTRM a la izquierda y horizontal
+  include_image(
+    value = "https://drive.google.com/uc?export=view&id=1saNYKk0nO96bVjHhExjAdtt07Iiu0SFb",
+    size = c(7, 4),             # Más pequeño y horizontal
+    position = c(0.8, 3.6)        # A la izquierda y arriba
+  ) %>%
+  
+  # Regla de escala abajo
+  include_image(
+    value = "https://huito.inkaverse.com/img/scale.pdf",
+    size = c(5, 1),
+    position = c(2.55, 0.55)
+  ) %>%
+  
+  # Logo QR tipo lupa
+  include_image(
+    value = "https://drive.google.com/uc?export=view&id=16wJZmm-OVG3Cj512WUAfvgk-KZuiZkKN",
+    size = c(2, 2),
+    position = c(7.6, 4.9)
+  ) %>%
+  
+  # Código QR
+  include_barcode(
+    value = "barcode",
+    size = c(2.7,2.7),
+    position = c(7.3, 1.4)
+  ) %>%
+  
+  # Textos informativos reacomodados
+  include_text(value = "Orden: Centrospermal", position = c(1.8, 3.9), size = 12, color = "black", opts = list(hjust = 0)) %>%
+  include_text(value = "Familia: Amarantaceae", position = c(1.8, 3.2), size = 12, color = "black", opts = list(hjust = 0)) %>%
+  include_text(value = "Chenopodiun quinoa", position = c(4.2, 5.4), size = 15, color = "black", font = font[1]) %>%
+  include_text(value = "Quinua", position = c(4.2, 4.6), size = 16, color = "black", font = font[2]) %>%
+  
+  # Texto del tratamiento junto al QR
+  include_text(
+    value = "tratamiento",
+    position = c(1.9,1.9),
+    size = 15,
+    color = "color_tratamiento",
+    font = font[2],
+    opts = list(hjust = 0)
+  ) %>%
+  
+  # Número de parcela rotado (en el borde derecho)
+  include_text(
+    value = "name",
+    position = c(7.5, 3.5),
+    size = 17,
+    color = "color_numero",
+    angle = 00,
+    font = font[2]
+  )
+
+
+# Vista previa
+
+label %>% 
+  label_print(mode = "preview")
+label %>%
+  label_print(mode = "complete", filename = "etiquetas1", nlabels = 12)
+  
+  
+  
+ 
+
+
+
+
+
+
+```
+
+
+
+
